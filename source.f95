@@ -1,6 +1,7 @@
 ! @author Conner Sommerfield
 ! Program for CS420 class that multiplies two matrices in Fortran
-
+! Reads from text files matrix1.txt and matrix2.txt to populate matrices
+! User must give dimensions of matrices to multiply
 
 ! module defines helper functions for working with matrices
 module matrices
@@ -9,7 +10,8 @@ module matrices
     
     ! Before populating array, we need to get its dimension by prompting user input
     subroutine prompt_dimensions(rows, columns)
-        integer, intent(out) :: rows, columns
+        integer, intent(out)        :: rows, columns
+
         print *, "Please type number of rows"
         read *, rows
         print *, "Please type number of columns"
@@ -22,7 +24,7 @@ module matrices
         character(*), intent(in)    :: filename
         integer, intent(in)         :: rows, columns
         real, intent(out)           :: matrix(:,:)
-        integer                     :: i, j
+        integer                     :: i, j                     ! Loop variables
         
         ! File handle chosen at random
         open(10, file=filename)
@@ -49,10 +51,29 @@ module matrices
                 endif
             end do
         end do
+
+        ! Extra white space
+        print *, ""
+        print *, ""
     end subroutine print_matrix
 
-    ! function multMatrices(matrix1, matrix2)
 
+    ! Uses matrix multiplication algorithm to populate output matrix array
+    subroutine multMatrices(outMatrix, matrix1, matrix2, rows1, rows2, columns1, columns2)
+        integer, intent(in)         :: rows1, rows2, columns1, columns2
+        real, intent(in)            :: matrix1(:,:), matrix2(:,:)
+        real, intent(out)           :: outMatrix(:,:)
+        integer                     :: i, j, k
+      
+        do i=1, rows1
+            do j=1, columns2
+                do k=1, rows2
+                    outMatrix(i, j) = outMatrix(i, j) + (matrix1(i, k) * matrix2(k, j))
+                end do
+            end do
+        end do
+
+    end subroutine multMatrices
 
 end module matrices
 
@@ -65,24 +86,45 @@ program multMatrix
     use matrices
     implicit none
 
-    ! Declarations
-    real, allocatable :: matrix1(:,:), matrix2(:,:)
+                                          !!!! POPULATE MATRICES !!!!
+
+    ! Declarations !
+    real, allocatable :: matrix1(:,:), matrix2(:,:), outMatrix(:,:)
     integer :: rows1, columns1, rows2, columns2
 
-    ! Matrix 1
-    call prompt_dimensions(rows1, columns1)                         ! Get dimensions to allocate array
+    
+    ! Matrix 1 !
+74  call prompt_dimensions(rows1, columns1)                         ! Get dimensions to allocate array
     allocate(matrix1(rows1, columns1))
     call populate_matrix("matrix1.txt", matrix1, rows1, columns1)   ! Fill array from matrix1.txt
     call print_matrix(rows1, columns1, matrix1)                     ! Print array in matrix format
 
-    ! Matrix 2
+    ! Matrix 2 !
     call prompt_dimensions(rows2, columns2)                           
     allocate(matrix2(rows2, columns2))
     call populate_matrix("matrix2.txt", matrix2, rows2, columns2)
     call print_matrix(rows2, columns2, matrix2)
 
-    ! PERFORM MULTIPLICATION !
-    
+                                        
+                                        !!!! PERFORM MULTIPLICATION !!!!
 
-    
+    ! Dimensions Check !
+    if (rows2 .ne. columns1) then
+        print *, "Invalid Matrix Dimension, Cannot Multiply"
+        deallocate(matrix1)
+        deallocate(matrix2)
+        goto 74                                                     ! Prompt user again for useable dimensions
+    endif
+
+    ! Allocate Output Matrix, Multiply And Display Result !
+    allocate(outMatrix(rows1, columns2))
+    outMatrix = 0.0                                                 ! Set all matrix elements to zero
+    call multMatrices(outMatrix, matrix1, matrix2, rows1, rows2, columns1, columns2)
+    call print_matrix(rows1, columns2, outMatrix)
+
+    ! Cleanup !
+    deallocate(matrix1)
+    deallocate(matrix2)
+    deallocate(outMatrix)
+
 end program multMatrix
