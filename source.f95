@@ -23,6 +23,21 @@ module matrices
         print *, "Please type number of columns"
         read *, columns
     end subroutine prompt_dimensions
+
+    subroutine print_matrix(rows, columns, matrix)
+        integer, intent(in) :: rows, columns
+        real, intent(in) :: matrix(:,:)
+        integer :: i, j
+        do i=1, rows
+            do j=1, columns
+                if (j == columns) then
+                    write(*, fmt="(1x,f7.2)", advance="yes") matrix(i,j)
+                else
+                    write(*, fmt="(1x,f7.2)", advance="no") matrix(i,j)
+                endif
+            end do
+        end do
+    end subroutine print_matrix
 end module matrices
 
 
@@ -31,23 +46,19 @@ program multMatrix
     use matrices
     implicit none
 
-    real, allocatable :: matrix(:,:)
-    integer :: rows, columns
-    integer :: i, j
+    real, allocatable :: matrix1(:,:), matrix2(:,:)
+    integer :: rows1, columns1, rows2, columns2
 
-    call prompt_dimensions(rows, columns)
-    allocate(matrix(rows, columns))
-    
-    call populate_matrix("matrix1.txt", matrix, rows, columns)
+    call prompt_dimensions(rows1, columns1)
+    allocate(matrix1(rows1, columns1))
+    call populate_matrix("matrix1.txt", matrix1, rows1, columns1)
 
-    do i=1, rows
-        do j=1, columns
-            if (j == columns) then
-                write(*, fmt="(1x,f7.2)", advance="yes") matrix(i,j)
-            else
-                write(*, fmt="(1x,f7.2)", advance="no") matrix(i,j)
-            endif
-        end do
-    end do
+    call print_matrix(rows1, columns1, matrix1)
+
+    call prompt_dimensions(rows2, columns2)
+    allocate(matrix2(rows2, columns2))
+    call populate_matrix("matrix2.txt", matrix2, rows2, columns2)
+
+    call print_matrix(rows2, columns2, matrix2)
     
 end program multMatrix
