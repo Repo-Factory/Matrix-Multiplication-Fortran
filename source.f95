@@ -1,7 +1,6 @@
 ! @author Conner Sommerfield
 ! Program for CS420 class that multiplies two matrices in Fortran
-! Reads from text files matrix1.txt and matrix2.txt to populate matrices
-! User must give dimensions of matrices to multiply
+
 
 ! module defines helper functions for working with matrices
 module matrices
@@ -51,14 +50,11 @@ module matrices
                 endif
             end do
         end do
-
-        ! Extra white space
-        print *, ""
-        print *, ""
+        
+    print *, ""
+    print *, ""
     end subroutine print_matrix
 
-
-    ! Uses matrix multiplication algorithm to populate output matrix array
     subroutine multMatrices(outMatrix, matrix1, matrix2, rows1, rows2, columns1, columns2)
         integer, intent(in)         :: rows1, rows2, columns1, columns2
         real, intent(in)            :: matrix1(:,:), matrix2(:,:)
@@ -73,6 +69,7 @@ module matrices
             end do
         end do
 
+
     end subroutine multMatrices
 
 end module matrices
@@ -85,8 +82,6 @@ end module matrices
 program multMatrix
     use matrices
     implicit none
-
-                                          !!!! POPULATE MATRICES !!!!
 
     ! Declarations !
     real, allocatable :: matrix1(:,:), matrix2(:,:), outMatrix(:,:)
@@ -105,24 +100,19 @@ program multMatrix
     call populate_matrix("matrix2.txt", matrix2, rows2, columns2)
     call print_matrix(rows2, columns2, matrix2)
 
-                                        
-                                        !!!! PERFORM MULTIPLICATION !!!!
-
-    ! Dimensions Check !
+    ! PERFORM MULTIPLICATION !
     if (rows2 .ne. columns1) then
         print *, "Invalid Matrix Dimension, Cannot Multiply"
         deallocate(matrix1)
         deallocate(matrix2)
-        goto 74                                                     ! Prompt user again for useable dimensions
+        goto 74
     endif
 
-    ! Allocate Output Matrix, Multiply And Display Result !
     allocate(outMatrix(rows1, columns2))
-    outMatrix = 0.0                                                 ! Set all matrix elements to zero
+    outMatrix = 0.0
     call multMatrices(outMatrix, matrix1, matrix2, rows1, rows2, columns1, columns2)
     call print_matrix(rows1, columns2, outMatrix)
 
-    ! Cleanup !
     deallocate(matrix1)
     deallocate(matrix2)
     deallocate(outMatrix)
